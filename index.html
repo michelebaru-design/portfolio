@@ -51,7 +51,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 .fbtn:hover:not(.on){border-color:var(--acc);color:var(--acc)}
 
 /* ── GRIGLIA ── */
-#main{padding-top:calc(130px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+#main{padding-top:calc(195px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}
 #grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -99,6 +99,55 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
   animation:lbIn .3s cubic-bezier(.25,.46,.45,.94)}
 @keyframes lbIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ── FADE-IN CELLE ── */
+.cell{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.cell.visible{opacity:1;transform:translateY(0)}
+
+/* ── HOVER GRADIENT OVERLAY ── */
+.cell-over{
+  background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.3) 50%,transparent 100%);
+  opacity:0;transition:opacity .35s;
+  justify-content:flex-end;padding:14px 10px;align-items:flex-start;
+}
+.cell:hover .cell-over,.cell.touch-over .cell-over{opacity:1}
+.cell-title{font-size:11px;font-weight:600;color:#fff;letter-spacing:.3px;text-align:left;line-height:1.3}
+.cell-cat{font-size:8px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;margin-top:2px;text-align:left}
+
+/* ── TRANSIZIONE CATEGORIA ── */
+#grid.fading .cell{opacity:0;transform:scale(.96);transition:opacity .2s,transform .2s}
+#grid.appearing .cell{animation:cellIn .4s ease forwards}
+@keyframes cellIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SEARCH ── */
+#search-wrap{padding:0 16px 10px;position:relative}
+#search-inp{
+  width:100%;background:#141414;border:1px solid #222;border-radius:10px;
+  padding:10px 14px 10px 36px;color:var(--txt);font-size:13px;font-family:"DM Sans",sans-serif;
+  outline:none;transition:.2s;
+}
+#search-inp:focus{border-color:var(--acc)}
+#search-inp::placeholder{color:var(--mut)}
+#search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);
+  color:var(--mut);font-size:14px;pointer-events:none}
+#search-clear{position:absolute;right:26px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--mut);font-size:16px;display:none;cursor:pointer}
+
+/* ── SORT ── */
+#sort-wrap{padding:0 16px 10px;display:flex;gap:6px;align-items:center}
+#sort-wrap span{font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.sbtn{padding:4px 10px;border-radius:99px;border:1px solid #222;background:transparent;
+  color:var(--mut);font-size:10px;font-weight:600;letter-spacing:.5px;transition:.2s}
+.sbtn.on{background:#1e1e1e;border-color:#444;color:var(--txt)}
+
+/* ── LIGHTBOX MIGLIORATO ── */
+#lb-counter{font-size:11px;color:var(--mut);letter-spacing:1px;margin-top:10px}
+#lb-zoom{cursor:zoom-in}
+#lb-zoom.zoomed{cursor:zoom-out;transform:scale(1.8)!important;transition:transform .3s}
+#lb-slideshow{background:none;border:1px solid #333;border-radius:99px;
+  padding:6px 14px;color:var(--mut);font-size:11px;margin-top:10px;transition:.2s}
+#lb-slideshow.on{border-color:var(--acc);color:var(--acc)}
+
 #lb-info{margin-top:16px;text-align:center}
 #lb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
 #lb-desc{font-size:12px;color:var(--mut);margin-top:6px;font-weight:300;letter-spacing:.3px;max-width:400px}
@@ -196,6 +245,8 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
     <div id="logo">Portfolio<span>Fotografia</span></div>
     <button id="btn-pin" onclick="openPin()">🔐</button>
   </div>
+  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search-inp" placeholder="Cerca per titolo..." oninput="onSearch(this.value)"/><button id="search-clear" onclick="clearSearch()">✕</button></div>
+  <div id="sort-wrap"><span>Ordina</span><button class="sbtn on" data-s="newest" onclick="setSort(this)">Recenti</button><button class="sbtn" data-s="oldest" onclick="setSort(this)">Vecchie</button><button class="sbtn" data-s="alpha" onclick="setSort(this)">A-Z</button></div>
   <div id="filters">
     <button class="fbtn on" data-cat="all" onclick="setFilter(this)">Tutte</button>
     <button class="fbtn" data-cat="Paesaggi" onclick="setFilter(this)">🏔 Paesaggi</button>
@@ -228,12 +279,14 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 <!-- LIGHTBOX -->
 <div id="lb">
   <button id="lb-close" onclick="closeLb()">✕</button>
-  <img id="lb-img" src="" alt=""/>
+  <img id="lb-img" id="lb-zoom" src="" alt="" ondblclick="toggleZoom(this)" style="transition:transform .3s;cursor:zoom-in"/>
   <div id="lb-info">
     <div id="lb-title"></div>
     <div id="lb-desc"></div>
     <div id="lb-cat"></div>
   </div>
+  <div id="lb-counter"></div>
+  <button id="lb-slideshow" onclick="toggleSlideshow()">▶ Slideshow</button>
   <div id="lb-nav">
     <button class="lb-arr" onclick="lbNav(-1)">‹</button>
     <button class="lb-arr" onclick="lbNav(1)">›</button>
@@ -333,10 +386,6 @@ async function fbDelete(key){
 /* ══════════════════════════════════════
    RENDER GRIGLIA
 ══════════════════════════════════════ */
-function filtered(){
-  return curFilter==='all'?photos:photos.filter(p=>p.cat===curFilter);
-}
-
 function render(reset){
   if(reset)visibleCount=PAGE_SIZE;
   const list=filtered();
@@ -362,8 +411,8 @@ function render(reset){
       +'</div>';
   }).join('');
 
-  // Mostra/nascondi loader
   if(loader)loader.style.display=visibleCount<list.length?'flex':'none';
+  setTimeout(initFadeObserver,50);
 }
 
 /* ══════════════════════════════════════
@@ -387,16 +436,19 @@ function openLb(i){
 }
 function showLb(){
   const list=filtered();
-  const p=list[lbIdx];
-  if(!p)return;
-  document.getElementById('lb-img').src=p.url;
+  const p=list[lbIdx];if(!p)return;
+  const img=document.getElementById('lb-img');
+  img.classList.remove('zoomed');img.style.cursor='zoom-in';img.style.transform='';
+  img.src=p.url;
   document.getElementById('lb-title').textContent=p.title;
   document.getElementById('lb-desc').textContent=p.desc||'';
   document.getElementById('lb-cat').textContent=p.cat;
+  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+list.length;
 }
 function closeLb(){
   document.getElementById('lb').classList.remove('on');
   document.body.style.overflow='';
+  stopSlideshow();
 }
 function lbNav(d){
   const list=filtered();
@@ -540,6 +592,106 @@ function initScrollObserver(){
 }
 
 /* ══════════════════════════════════════
+   SEARCH & SORT
+══════════════════════════════════════ */
+let searchQ='';
+let sortMode='newest';
+
+function onSearch(q){
+  searchQ=q.toLowerCase();
+  document.getElementById('search-clear').style.display=q?'block':'none';
+  render(true);
+}
+function clearSearch(){
+  searchQ='';
+  document.getElementById('search-inp').value='';
+  document.getElementById('search-clear').style.display='none';
+  render(true);
+}
+function setSort(btn){
+  sortMode=btn.dataset.s;
+  document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render(true);
+}
+
+function filtered(){
+  let list=curFilter==='all'?[...photos]:photos.filter(p=>p.cat===curFilter);
+  if(searchQ)list=list.filter(p=>(p.title||'').toLowerCase().includes(searchQ)||
+    (p.desc||'').toLowerCase().includes(searchQ));
+  if(sortMode==='oldest')list=[...list].reverse();
+  else if(sortMode==='alpha')list=[...list].sort((a,b)=>(a.title||'').localeCompare(b.title||''));
+  return list;
+}
+
+/* ══════════════════════════════════════
+   FADE-IN OBSERVER
+══════════════════════════════════════ */
+function initFadeObserver(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:.05});
+  document.querySelectorAll('.cell').forEach(c=>obs.observe(c));
+}
+
+/* ══════════════════════════════════════
+   CATEGORIA CON TRANSIZIONE
+══════════════════════════════════════ */
+function setFilter(btn){
+  const grid=document.getElementById('grid');
+  grid.classList.add('fading');
+  setTimeout(()=>{
+    curFilter=btn.dataset.cat;
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    grid.classList.remove('fading');
+    render(true);
+    setTimeout(()=>{grid.classList.add('appearing');setTimeout(()=>grid.classList.remove('appearing'),600);},10);
+  },200);
+}
+
+/* ══════════════════════════════════════
+   ZOOM LIGHTBOX
+══════════════════════════════════════ */
+function toggleZoom(img){
+  img.classList.toggle('zoomed');
+  img.style.cursor=img.classList.contains('zoomed')?'zoom-out':'zoom-in';
+}
+
+/* ══════════════════════════════════════
+   SLIDESHOW
+══════════════════════════════════════ */
+let slideshowT=null;
+function toggleSlideshow(){
+  const btn=document.getElementById('lb-slideshow');
+  if(slideshowT){
+    clearInterval(slideshowT);slideshowT=null;
+    btn.textContent='▶ Slideshow';btn.classList.remove('on');
+  }else{
+    slideshowT=setInterval(()=>lbNav(1),3000);
+    btn.textContent='⏸ Stop';btn.classList.add('on');
+  }
+}
+function stopSlideshow(){
+  if(slideshowT){clearInterval(slideshowT);slideshowT=null;}
+  const btn=document.getElementById('lb-slideshow');
+  if(btn){btn.textContent='▶ Slideshow';btn.classList.remove('on');}
+}
+
+/* ══════════════════════════════════════
+   SWIPE LIGHTBOX
+══════════════════════════════════════ */
+let touchStartX=0;
+function initSwipe(){
+  const lb=document.getElementById('lb');
+  lb.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(dx)>50){lbNav(dx<0?1:-1);}
+  },{passive:true});
+}
+
+/* ══════════════════════════════════════
    KEYBOARD
 ══════════════════════════════════════ */
 document.addEventListener('keydown',e=>{
@@ -563,6 +715,7 @@ document.addEventListener('keydown',e=>{
   }
   render(true);
   initScrollObserver();
+  initSwipe();
 })();
 </script>
 </body>

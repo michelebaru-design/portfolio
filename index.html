@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0a;--txt:#f5f0e8;--mut:#6b6560;--acc:#c9a96e;
+  --card:#141414;--border:#1e1e1e;--over:rgba(0,0,0,.72);
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Raleway',sans-serif;overflow-x:hidden}
+button,input,select,textarea{font-family:inherit;cursor:pointer}
+
+/* ── HEADER ── */
+#hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:env(safe-area-inset-top) 0 0;
+  background:linear-gradient(to bottom,rgba(10,10,10,.98),rgba(10,10,10,.0));
+}
+#hdr-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px 20px;
+}
+#logo{
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:900;
+  letter-spacing:3px;color:var(--acc);text-transform:uppercase;
+}
+#logo span{font-weight:400;font-style:italic;color:var(--txt);font-size:14px;display:block;letter-spacing:1px;margin-top:1px}
+#btn-pin{background:none;border:1px solid #2a2a2a;border-radius:50%;width:36px;height:36px;
+  color:var(--mut);font-size:14px;display:flex;align-items:center;justify-content:center;transition:.2s}
+#btn-pin:hover{border-color:var(--acc);color:var(--acc)}
+#btn-pin.active{border-color:var(--acc);color:var(--acc);background:#1a1500}
+
+/* ── FILTRI CATEGORIA ── */
+#filters{
+  display:flex;gap:6px;overflow-x:auto;padding:0 20px 14px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+#filters::-webkit-scrollbar{display:none}
+.fbtn{
+  flex-shrink:0;padding:6px 16px;border-radius:99px;border:1px solid #2a2a2a;
+  background:transparent;color:var(--mut);font-size:11px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;transition:.2s;
+}
+.fbtn.on{background:var(--acc);border-color:var(--acc);color:#0a0a0a}
+.fbtn:hover:not(.on){border-color:var(--acc);color:var(--acc)}
+
+/* ── GRIGLIA ── */
+#main{padding-top:120px;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+#grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2px;
+  padding:0 2px;
+}
+@media(min-width:600px){#grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:900px){#grid{grid-template-columns:repeat(5,1fr);max-width:1200px;margin:0 auto}}
+
+.cell{
+  position:relative;aspect-ratio:1/1;overflow:hidden;cursor:pointer;
+  background:var(--card);
+}
+.cell img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .4s cubic-bezier(.25,.46,.45,.94);
+}
+.cell:hover img{transform:scale(1.06)}
+.cell-over{
+  position:absolute;inset:0;background:var(--over);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .3s;padding:12px;text-align:center;
+}
+.cell:hover .cell-over{opacity:1}
+.cell-title{font-size:12px;font-weight:600;color:#fff;letter-spacing:.5px;line-height:1.3}
+.cell-cat{font-size:9px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.cell-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  color:var(--mut);font-size:28px;
+}
+
+/* ── EMPTY STATE ── */
+#empty{display:none;text-align:center;padding:80px 20px;color:var(--mut)}
+#empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+#empty-txt{font-family:'Playfair Display',serif;font-size:18px;font-style:italic}
+
+/* ── LIGHTBOX ── */
+#lb{
+  position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.97);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;padding-top:calc(20px + env(safe-area-inset-top));
+}
+#lb.on{display:flex}
+#lb-img{max-width:100%;max-height:70vh;object-fit:contain;border-radius:2px;
+  animation:lbIn .3s cubic-bezier(.25,.46,.45,.94)}
+@keyframes lbIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+#lb-info{margin-top:16px;text-align:center}
+#lb-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+#lb-desc{font-size:12px;color:var(--mut);margin-top:6px;font-weight:300;letter-spacing:.3px;max-width:400px}
+#lb-cat{font-size:9px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+#lb-close{
+  position:fixed;top:calc(16px + env(safe-area-inset-top));right:20px;
+  background:none;border:none;color:#fff;font-size:24px;z-index:301;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+}
+#lb-nav{display:flex;gap:20px;margin-top:20px}
+.lb-arr{background:none;border:1px solid #333;border-radius:50%;width:40px;height:40px;
+  color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.lb-arr:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── MODAL ADD/EDIT ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0 0 env(safe-area-inset-bottom)}
+.sh{background:#111;border-radius:20px 20px 0 0;width:100%;max-width:500px;
+  max-height:90vh;overflow-y:auto;padding:24px 20px 32px}
+.sh-handle{width:40px;height:4px;background:#2a2a2a;border-radius:2px;margin:0 auto 20px}
+.sh-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+.inp{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;
+  padding:12px 14px;color:var(--txt);font-size:14px;outline:none;transition:.2s}
+.inp:focus{border-color:var(--acc)}
+.inp::placeholder{color:var(--mut)}
+label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;
+  display:block;margin-bottom:6px;margin-top:14px}
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.cbtn{padding:7px 14px;border-radius:99px;border:1px solid #2a2a2a;
+  background:transparent;color:var(--mut);font-size:11px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;transition:.2s}
+.cbtn.on{background:var(--acc);border-color:var(--acc);color:#0a0a0a}
+.btnrow{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:600;
+  letter-spacing:.5px;transition:.2s}
+.btn-save{background:var(--acc);color:#0a0a0a}
+.btn-save:hover{opacity:.88}
+.btn-cancel{background:#1e1e1e;color:var(--mut)}
+.btn-del{background:#1e1e1e;color:#c0392b;border:1px solid #3a1010}
+
+/* ── PIN MODAL ── */
+#pin-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;
+  display:none;align-items:center;justify-content:center;padding:20px}
+#pin-modal.on{display:flex}
+#pin-box{background:#111;border:1px solid #2a2a2a;border-radius:20px;
+  padding:32px 28px;width:100%;max-width:320px;text-align:center}
+#pin-icon{font-size:36px;margin-bottom:12px}
+#pin-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:6px}
+#pin-sub{font-size:12px;color:var(--mut);margin-bottom:20px}
+#pin-inp{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;
+  padding:14px;color:var(--txt);font-size:24px;letter-spacing:8px;text-align:center;
+  outline:none;margin-bottom:14px}
+#pin-inp:focus{border-color:var(--acc)}
+#pin-ok{width:100%;padding:13px;background:var(--acc);border:none;border-radius:10px;
+  color:#0a0a0a;font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+#pin-close{background:none;border:none;color:var(--mut);font-size:13px}
+
+/* ── FAB ADD ── */
+#fab{
+  position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;
+  width:52px;height:52px;border-radius:50%;background:var(--acc);
+  border:none;color:#0a0a0a;font-size:24px;z-index:100;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(201,169,110,.3);transition:.2s;
+}
+#fab.on{display:flex}
+#fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(201,169,110,.4)}
+
+/* ── STATUS ── */
+#status{
+  position:fixed;top:calc(env(safe-area-inset-top) + 60px);left:50%;
+  transform:translateX(-50%);background:rgba(201,169,110,.15);
+  border:1px solid rgba(201,169,110,.3);border-radius:99px;
+  padding:6px 16px;font-size:12px;color:var(--acc);
+  opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:500;
+}
+#status.on{opacity:1}
+
+/* ── PREVIEW LINK ── */
+#link-preview{
+  width:100%;aspect-ratio:16/9;background:#1a1a1a;border-radius:10px;
+  overflow:hidden;margin-top:8px;display:flex;align-items:center;justify-content:center;
+  border:1px solid #2a2a2a;
+}
+#link-preview img{width:100%;height:100%;object-fit:cover;display:none}
+#link-preview-ph{color:var(--mut);font-size:24px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div id="hdr-inner">
+    <div id="logo">Portfolio<span>Fotografia</span></div>
+    <button id="btn-pin" onclick="openPin()">🔐</button>
+  </div>
+  <div id="filters">
+    <button class="fbtn on" data-cat="all" onclick="setFilter(this)">Tutte</button>
+    <button class="fbtn" data-cat="Paesaggi" onclick="setFilter(this)">🏔 Paesaggi</button>
+    <button class="fbtn" data-cat="Ritratti" onclick="setFilter(this)">👤 Ritratti</button>
+    <button class="fbtn" data-cat="Street" onclick="setFilter(this)">🏙 Street</button>
+    <button class="fbtn" data-cat="Sport" onclick="setFilter(this)">⚡ Sport</button>
+  </div>
+</div>
+
+<!-- GRIGLIA -->
+<div id="main">
+  <div id="grid"></div>
+  <div id="empty">
+    <div id="empty-icon">📷</div>
+    <div id="empty-txt">Nessuna foto ancora</div>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div id="status"></div>
+
+<!-- FAB -->
+<button id="fab" onclick="openAdd()">+</button>
+
+<!-- LIGHTBOX -->
+<div id="lb">
+  <button id="lb-close" onclick="closeLb()">✕</button>
+  <img id="lb-img" src="" alt=""/>
+  <div id="lb-info">
+    <div id="lb-title"></div>
+    <div id="lb-desc"></div>
+    <div id="lb-cat"></div>
+  </div>
+  <div id="lb-nav">
+    <button class="lb-arr" onclick="lbNav(-1)">‹</button>
+    <button class="lb-arr" onclick="lbNav(1)">›</button>
+  </div>
+</div>
+
+<!-- MODAL ADD/EDIT -->
+<div class="ov" id="mod-add" style="display:none" onclick="if(event.target===this)closeAdd()">
+  <div class="sh">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="mod-add-title">Nuova Foto</div>
+    <label>URL Foto</label>
+    <input class="inp" id="add-url" placeholder="https://..." oninput="previewLink(this.value)"/>
+    <div id="link-preview"><div id="link-preview-ph">🖼</div><img id="link-preview-img" src="" onerror="this.hidden=true" onload="this.style.display='block'"/></div>
+    <label>Titolo</label>
+    <input class="inp" id="add-title" placeholder="Es: Alba sul mare"/>
+    <label>Descrizione (opzionale)</label>
+    <input class="inp" id="add-desc" placeholder="Note, location, tecnica..."/>
+    <label>Categoria</label>
+    <div class="cats" id="add-cats">
+      <button class="cbtn on" data-c="Paesaggi" onclick="selCat(this)">🏔 Paesaggi</button>
+      <button class="cbtn" data-c="Ritratti" onclick="selCat(this)">👤 Ritratti</button>
+      <button class="cbtn" data-c="Street" onclick="selCat(this)">🏙 Street</button>
+      <button class="cbtn" data-c="Sport" onclick="selCat(this)">⚡ Sport</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn btn-cancel" onclick="closeAdd()">Annulla</button>
+      <button class="btn btn-del" id="btn-del-photo" style="display:none" onclick="deletePhoto()">🗑</button>
+      <button class="btn btn-save" onclick="savePhoto()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pin-modal" onclick="if(event.target===this)closePinModal()">
+  <div id="pin-box">
+    <div id="pin-icon">🔐</div>
+    <div id="pin-title" id="pin-title">Accesso Privato</div>
+    <div id="pin-sub">Inserisci il PIN per gestire il portfolio</div>
+    <input id="pin-inp" type="password" inputmode="numeric" maxlength="6" placeholder="••••••"/>
+    <button id="pin-ok" onclick="checkPin()">Accedi</button>
+    <button id="pin-close" onclick="closePinModal()">Annulla</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   CONFIG
+══════════════════════════════════════ */
+const PORTFOLIO_PIN='123456';
+const FB_URL=(()=>{
+  const p=new URLSearchParams(location.search).get('db');
+  if(p){localStorage.setItem('pf_db',p);return p;}
+  return localStorage.getItem('pf_db')||'';
+})();
+const FB_PATH='/tattica/portfolio';
+
+let isAdmin=localStorage.getItem('pf_admin')==='true';
+let photos=[];
+let curFilter='all';
+let lbIdx=0;
+let editingId=null;
+let addCat='Paesaggi';
+
+/* ══════════════════════════════════════
+   FIREBASE
+══════════════════════════════════════ */
+async function fbRead(){
+  if(!FB_URL)return[];
+  try{
+    const r=await fetch(FB_URL+FB_PATH+'.json?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return[];
+    const d=await r.json();
+    if(!d)return[];
+    return Object.entries(d).map(([k,v])=>({...v,_key:k})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  }catch{return[];}
+}
+async function fbWrite(data){
+  if(!FB_URL)return null;
+  const r=await fetch(FB_URL+FB_PATH+'.json',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const d=await r.json();return d.name;
+}
+async function fbUpdate(key,data){
+  if(!FB_URL)return;
+  await fetch(FB_URL+FB_PATH+'/'+key+'.json',{method:'PATCH',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+}
+async function fbDelete(key){
+  if(!FB_URL)return;
+  await fetch(FB_URL+FB_PATH+'/'+key+'.json',{method:'DELETE'});
+}
+
+/* ══════════════════════════════════════
+   RENDER GRIGLIA
+══════════════════════════════════════ */
+function filtered(){
+  return curFilter==='all'?photos:photos.filter(p=>p.cat===curFilter);
+}
+
+function render(){
+  const list=filtered();
+  const grid=document.getElementById('grid');
+  const empty=document.getElementById('empty');
+  if(!list.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=list.map((p,i)=>{
+    const editBtn=isAdmin?'<div class="cell-edit" data-key="'+p._key+'" onclick="event.stopPropagation();openEdit(this.dataset.key)" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:2">✏️</div>':'';
+    return '<div class="cell" onclick="openLb('+i+')">'
+      +'<img src="'+p.url+'" alt="'+p.title+'" loading="lazy" onerror="imgErr(this)"/>'
+      +'<div class="cell-placeholder" style="display:none">📷</div>'
+      +'<div class="cell-over">'
+      +'<div class="cell-title">'+p.title+'</div>'
+      +'<div class="cell-cat">'+p.cat+'</div>'
+      +'</div>'
+      +editBtn
+      +'</div>';
+  }).join('');
+}
+
+/* ══════════════════════════════════════
+   FILTRO
+══════════════════════════════════════ */
+function setFilter(btn){
+  curFilter=btn.dataset.cat;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+/* ══════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════ */
+function openLb(i){
+  lbIdx=i;
+  showLb();
+  document.getElementById('lb').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function showLb(){
+  const list=filtered();
+  const p=list[lbIdx];
+  if(!p)return;
+  document.getElementById('lb-img').src=p.url;
+  document.getElementById('lb-title').textContent=p.title;
+  document.getElementById('lb-desc').textContent=p.desc||'';
+  document.getElementById('lb-cat').textContent=p.cat;
+}
+function closeLb(){
+  document.getElementById('lb').classList.remove('on');
+  document.body.style.overflow='';
+}
+function lbNav(d){
+  const list=filtered();
+  lbIdx=(lbIdx+d+list.length)%list.length;
+  showLb();
+}
+document.getElementById('lb').addEventListener('click',function(e){
+  if(e.target===this)closeLb();
+});
+
+/* ══════════════════════════════════════
+   ADD / EDIT FOTO
+══════════════════════════════════════ */
+function imgErr(el){el.hidden=true;if(el.nextElementSibling)el.nextElementSibling.style.display="flex";}
+function openAdd(){
+  editingId=null;
+  document.getElementById('mod-add-title').textContent='Nuova Foto';
+  document.getElementById('add-url').value='';
+  document.getElementById('add-title').value='';
+  document.getElementById('add-desc').value='';
+  document.getElementById('btn-del-photo').style.display='none';
+  document.getElementById('link-preview-img').style.display='none';
+  addCat='Paesaggi';
+  document.querySelectorAll('.cbtn').forEach(b=>{
+    b.classList.toggle('on',b.dataset.c==='Paesaggi');
+  });
+  document.getElementById('mod-add').style.display='flex';
+}
+function openEdit(key){
+  const p=photos.find(x=>x._key===key);if(!p)return;
+  editingId=key;
+  document.getElementById('mod-add-title').textContent='Modifica Foto';
+  document.getElementById('add-url').value=p.url;
+  document.getElementById('add-title').value=p.title;
+  document.getElementById('add-desc').value=p.desc||'';
+  document.getElementById('btn-del-photo').style.display='block';
+  addCat=p.cat||'Paesaggi';
+  document.querySelectorAll('.cbtn').forEach(b=>{
+    b.classList.toggle('on',b.dataset.c===addCat);
+  });
+  previewLink(p.url);
+  document.getElementById('mod-add').style.display='flex';
+}
+function closeAdd(){document.getElementById('mod-add').style.display='none';}
+function selCat(btn){
+  addCat=btn.dataset.c;
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function previewLink(url){
+  const img=document.getElementById('link-preview-img');
+  if(url&&url.startsWith('http')){img.src=url;img.style.display='block';}
+  else{img.style.display='none';}
+}
+async function savePhoto(){
+  const url=document.getElementById('add-url').value.trim();
+  const title=document.getElementById('add-title').value.trim();
+  const desc=document.getElementById('add-desc').value.trim();
+  if(!url){alert('Inserisci il link della foto');return;}
+  if(!title){alert('Inserisci un titolo');return;}
+  const data={url,title,desc,cat:addCat,ts:Date.now()};
+  showStatus('⏳ Salvataggio...');
+  if(editingId){
+    await fbUpdate(editingId,data);
+    photos=photos.map(p=>p._key===editingId?{...data,_key:editingId}:p);
+  }else{
+    const key=await fbWrite(data);
+    if(key)photos.unshift({...data,_key:key});
+  }
+  closeAdd();render();
+  showStatus('✅ Foto salvata!');
+}
+async function deletePhoto(){
+  if(!confirm('Eliminare questa foto?'))return;
+  await fbDelete(editingId);
+  photos=photos.filter(p=>p._key!==editingId);
+  closeAdd();render();
+  showStatus('🗑 Foto eliminata');
+}
+
+/* ══════════════════════════════════════
+   PIN
+══════════════════════════════════════ */
+function openPin(){
+  if(isAdmin){
+    isAdmin=false;localStorage.removeItem('pf_admin');
+    document.getElementById('btn-pin').classList.remove('active');
+    document.getElementById('fab').classList.remove('on');
+    render();showStatus('👁 Modalità ospite');
+  }else{
+    document.getElementById('pin-inp').value='';
+    document.getElementById('pin-modal').classList.add('on');
+    setTimeout(()=>document.getElementById('pin-inp').focus(),100);
+  }
+}
+function closePinModal(){document.getElementById('pin-modal').classList.remove('on');}
+function checkPin(){
+  const v=document.getElementById('pin-inp').value;
+  if(v===PORTFOLIO_PIN){
+    isAdmin=true;localStorage.setItem('pf_admin','true');
+    document.getElementById('btn-pin').classList.add('active');
+    document.getElementById('btn-pin').textContent='👑';
+    document.getElementById('fab').classList.add('on');
+    closePinModal();render();showStatus('👑 Modalità admin');
+  }else{
+    const inp=document.getElementById('pin-inp');
+    inp.style.borderColor='#c0392b';inp.value='';
+    setTimeout(()=>inp.style.borderColor='#2a2a2a',1500);
+  }
+}
+
+/* ══════════════════════════════════════
+   STATUS
+══════════════════════════════════════ */
+let statusT=null;
+function showStatus(msg){
+  const el=document.getElementById('status');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(statusT);statusT=setTimeout(()=>el.classList.remove('on'),2500);
+}
+
+/* ══════════════════════════════════════
+   KEYBOARD
+══════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeLb();closeAdd();closePinModal();}
+  if(document.getElementById('lb').classList.contains('on')){
+    if(e.key==='ArrowLeft')lbNav(-1);
+    if(e.key==='ArrowRight')lbNav(1);
+  }
+  if(document.getElementById('pin-modal').classList.contains('on')&&e.key==='Enter')checkPin();
+});
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+(async()=>{
+  photos=await fbRead();
+  if(isAdmin){
+    document.getElementById('btn-pin').classList.add('active');
+    document.getElementById('btn-pin').textContent='👑';
+    document.getElementById('fab').classList.add('on');
+  }
+  render();
+})();
+</script>
+</body>
+</html>

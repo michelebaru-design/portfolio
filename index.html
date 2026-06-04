@@ -245,7 +245,7 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
     <div id="logo">Portfolio<span>Fotografia</span></div>
     <button id="btn-pin" onclick="openPin()">🔐</button>
   </div>
-  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search-inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Cerca per titolo..." oninput="onSearch(this.value)"/><button id="search-clear" onclick="clearSearch()">✕</button></div>
+  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search-inp" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Cerca per titolo..." oninput="onSearch(this.value)"/><button id="search-clear" onclick="clearSearch()">✕</button></div>
   <div id="sort-wrap"><span>Ordina</span><button class="sbtn on" data-s="newest" onclick="setSort(this)">Recenti</button><button class="sbtn" data-s="oldest" onclick="setSort(this)">Vecchie</button><button class="sbtn" data-s="alpha" onclick="setSort(this)">A-Z</button></div>
   <div id="filters">
     <button class="fbtn on" data-cat="all" onclick="setFilter(this)">Tutte</button>
@@ -339,7 +339,12 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 const PORTFOLIO_PIN='123456';
 const FB_URL=(()=>{
   const p=new URLSearchParams(location.search).get('db');
-  if(p){localStorage.setItem('pf_db',p);return p;}
+  if(p){
+    localStorage.setItem('pf_db',p);
+    // Rimuove ?db= dall'URL — Chrome non lo vede più e non autofilla
+    history.replaceState(null,'',location.pathname);
+    return p;
+  }
   return localStorage.getItem('pf_db')||'';
 })();
 const FB_PATH='/tattica/portfolio';
@@ -710,6 +715,9 @@ document.addEventListener('keydown',e=>{
   render(true);
   initScrollObserver();
   initSwipe();
+  // Pulisce il campo ricerca — Chrome iOS ignora autocomplete=off
+  const si=document.getElementById('search-inp');
+  if(si)si.value='';
 })();
 </script>
 </body>

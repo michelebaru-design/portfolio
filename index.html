@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Portfolio"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <title>Portfolio</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <style>
@@ -245,7 +249,7 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
     <div id="logo">Portfolio<span>Fotografia</span></div>
     <button id="btn-pin" onclick="openPin()">🔐</button>
   </div>
-  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search-inp" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Cerca per titolo..." oninput="onSearch(this.value)"/><button id="search-clear" onclick="clearSearch()">✕</button></div>
+  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search-inp" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Cerca per titolo..." oninput="onSearch(this.value)" onfocus="if(this.value&&this.value.startsWith('http'))this.value=''" /><button id="search-clear" onclick="clearSearch()">✕</button></div>
   <div id="sort-wrap"><span>Ordina</span><button class="sbtn on" data-s="newest" onclick="setSort(this)">Recenti</button><button class="sbtn" data-s="oldest" onclick="setSort(this)">Vecchie</button><button class="sbtn" data-s="alpha" onclick="setSort(this)">A-Z</button></div>
   <div id="filters">
     <button class="fbtn on" data-cat="all" onclick="setFilter(this)">Tutte</button>
@@ -339,12 +343,7 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 const PORTFOLIO_PIN='123456';
 const FB_URL=(()=>{
   const p=new URLSearchParams(location.search).get('db');
-  if(p){
-    localStorage.setItem('pf_db',p);
-    // Rimuove ?db= dall'URL — Chrome non lo vede più e non autofilla
-    history.replaceState(null,'',location.pathname);
-    return p;
-  }
+  if(p){localStorage.setItem('pf_db',p);return p;}
   return localStorage.getItem('pf_db')||'';
 })();
 const FB_PATH='/tattica/portfolio';

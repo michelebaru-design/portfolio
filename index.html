@@ -570,6 +570,32 @@ function showStatus(msg){
 }
 
 /* ══════════════════════════════════════
+   AUTO REFRESH — ricarica dati quando
+   l'app torna in foreground
+══════════════════════════════════════ */
+function initAutoRefresh(){
+  // Refresh quando torna visibile (da background o homescreen)
+  document.addEventListener('visibilitychange',async()=>{
+    if(!document.hidden){
+      photos=await fbRead();
+      render(true);
+    }
+  });
+  // Refresh quando torna in focus (Arc browser)
+  window.addEventListener('focus',async()=>{
+    photos=await fbRead();
+    render(true);
+  });
+  // Refresh ogni 60 secondi se aperta
+  setInterval(async()=>{
+    if(!document.hidden){
+      photos=await fbRead();
+      render();
+    }
+  },60000);
+}
+
+/* ══════════════════════════════════════
    SCROLL INFINITO
 ══════════════════════════════════════ */
 function initScrollObserver(){
@@ -715,7 +741,7 @@ document.addEventListener('keydown',e=>{
   render(true);
   initScrollObserver();
   initSwipe();
-  // Pulisce il campo ricerca — Chrome iOS ignora autocomplete=off
+  initAutoRefresh();
   const si=document.getElementById('search-inp');
   if(si)si.value='';
 })();

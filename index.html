@@ -418,12 +418,6 @@ function render(reset){
 /* ══════════════════════════════════════
    FILTRO
 ══════════════════════════════════════ */
-function setFilter(btn){
-  curFilter=btn.dataset.cat;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  render(true);
-}
 
 /* ══════════════════════════════════════
    LIGHTBOX

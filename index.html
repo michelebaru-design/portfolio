@@ -6,14 +6,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#0a0a0a;--txt:#f5f0e8;--mut:#6b6560;--acc:#c9a96e;
   --card:#141414;--border:#1e1e1e;--over:rgba(0,0,0,.72);
 }
-html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Raleway',sans-serif;overflow-x:hidden}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;cursor:pointer}
 
 /* ── HEADER ── */
@@ -27,7 +27,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
   padding:16px 20px 20px;
 }
 #logo{
-  font-family:'Playfair Display',serif;font-size:18px;font-weight:900;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:900;
   letter-spacing:3px;color:var(--acc);text-transform:uppercase;
 }
 #logo span{font-weight:400;font-style:italic;color:var(--txt);font-size:14px;display:block;letter-spacing:1px;margin-top:1px}
@@ -86,7 +86,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 /* ── EMPTY STATE ── */
 #empty{display:none;text-align:center;padding:80px 20px;color:var(--mut)}
 #empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
-#empty-txt{font-family:'Playfair Display',serif;font-size:18px;font-style:italic}
+#empty-txt{font-family:'Syne',sans-serif;font-size:18px;font-style:italic}
 
 /* ── LIGHTBOX ── */
 #lb{
@@ -98,8 +98,9 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 #lb-img{max-width:100%;max-height:70vh;object-fit:contain;border-radius:2px;
   animation:lbIn .3s cubic-bezier(.25,.46,.45,.94)}
 @keyframes lbIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 #lb-info{margin-top:16px;text-align:center}
-#lb-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+#lb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
 #lb-desc{font-size:12px;color:var(--mut);margin-top:6px;font-weight:300;letter-spacing:.3px;max-width:400px}
 #lb-cat{font-size:9px;color:var(--acc);letter-spacing:2px;text-transform:uppercase;margin-top:8px}
 #lb-close{
@@ -119,7 +120,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 .sh{background:#111;border-radius:20px 20px 0 0;width:100%;max-width:500px;
   max-height:90vh;overflow-y:auto;padding:24px 20px 32px}
 .sh-handle{width:40px;height:4px;background:#2a2a2a;border-radius:2px;margin:0 auto 20px}
-.sh-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+.sh-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px}
 .inp{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;
   padding:12px 14px;color:var(--txt);font-size:14px;outline:none;transition:.2s}
 .inp:focus{border-color:var(--acc)}
@@ -146,7 +147,7 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 #pin-box{background:#111;border:1px solid #2a2a2a;border-radius:20px;
   padding:32px 28px;width:100%;max-width:320px;text-align:center}
 #pin-icon{font-size:36px;margin-bottom:12px}
-#pin-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:6px}
+#pin-title{font-family:'Syne',sans-serif;font-size:18px;margin-bottom:6px}
 #pin-sub{font-size:12px;color:var(--mut);margin-bottom:20px}
 #pin-inp{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;
   padding:14px;color:var(--txt);font-size:24px;letter-spacing:8px;text-align:center;
@@ -207,6 +208,11 @@ label{font-size:11px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 <!-- GRIGLIA -->
 <div id="main">
   <div id="grid"></div>
+  <div id="loader" style="display:none;justify-content:center;align-items:center;padding:32px;gap:8px">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse .8s ease-in-out infinite"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse .8s ease-in-out .2s infinite"></div>
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse .8s ease-in-out .4s infinite"></div>
+  </div>
   <div id="empty">
     <div id="empty-icon">📷</div>
     <div id="empty-txt">Nessuna foto ancora</div>
@@ -291,6 +297,9 @@ let curFilter='all';
 let lbIdx=0;
 let editingId=null;
 let addCat='Paesaggi';
+const PAGE_SIZE=12;
+let visibleCount=PAGE_SIZE;
+let isLoading=false;
 
 /* ══════════════════════════════════════
    FIREBASE
@@ -328,13 +337,19 @@ function filtered(){
   return curFilter==='all'?photos:photos.filter(p=>p.cat===curFilter);
 }
 
-function render(){
+function render(reset){
+  if(reset)visibleCount=PAGE_SIZE;
   const list=filtered();
+  const visible=list.slice(0,visibleCount);
   const grid=document.getElementById('grid');
   const empty=document.getElementById('empty');
-  if(!list.length){grid.innerHTML='';empty.style.display='block';return;}
+  const loader=document.getElementById('loader');
+
+  if(!list.length){grid.innerHTML='';empty.style.display='block';
+    if(loader)loader.style.display='none';return;}
   empty.style.display='none';
-  grid.innerHTML=list.map((p,i)=>{
+
+  grid.innerHTML=visible.map((p,i)=>{
     const editBtn=isAdmin?'<div class="cell-edit" data-key="'+p._key+'" onclick="event.stopPropagation();openEdit(this.dataset.key)" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:2">✏️</div>':'';
     return '<div class="cell" onclick="openLb('+i+')">'
       +'<img src="'+p.url+'" alt="'+p.title+'" loading="lazy" onerror="imgErr(this)"/>'
@@ -346,6 +361,9 @@ function render(){
       +editBtn
       +'</div>';
   }).join('');
+
+  // Mostra/nascondi loader
+  if(loader)loader.style.display=visibleCount<list.length?'flex':'none';
 }
 
 /* ══════════════════════════════════════
@@ -355,7 +373,7 @@ function setFilter(btn){
   curFilter=btn.dataset.cat;
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  render();
+  render(true);
 }
 
 /* ══════════════════════════════════════
@@ -501,6 +519,27 @@ function showStatus(msg){
 }
 
 /* ══════════════════════════════════════
+   SCROLL INFINITO
+══════════════════════════════════════ */
+function initScrollObserver(){
+  const loader=document.getElementById('loader');
+  if(!loader)return;
+  const obs=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting&&!isLoading){
+      const list=filtered();
+      if(visibleCount>=list.length)return;
+      isLoading=true;
+      setTimeout(()=>{
+        visibleCount+=PAGE_SIZE;
+        render();
+        isLoading=false;
+      },400);
+    }
+  },{threshold:.1});
+  obs.observe(loader);
+}
+
+/* ══════════════════════════════════════
    KEYBOARD
 ══════════════════════════════════════ */
 document.addEventListener('keydown',e=>{
@@ -522,7 +561,8 @@ document.addEventListener('keydown',e=>{
     document.getElementById('btn-pin').textContent='👑';
     document.getElementById('fab').classList.add('on');
   }
-  render();
+  render(true);
+  initScrollObserver();
 })();
 </script>
 </body>

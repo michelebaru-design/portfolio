@@ -184,7 +184,6 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 #lb-info{margin-top:14px;text-align:center;max-width:480px;width:100%}
 #lb-title{font-family:"Syne",sans-serif;font-size:17px;font-weight:700}
 #lb-desc{font-size:12px;color:var(--mut);margin-top:5px;font-weight:300;line-height:1.6}
-#lb-exif{font-size:10px;color:#3a3530;margin-top:6px;letter-spacing:.5px;font-style:italic}
 #lb-meta{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px}
 #lb-cat{font-size:9px;color:var(--acc);letter-spacing:2px;text-transform:uppercase}
 #lb-counter{font-size:11px;color:var(--mut);letter-spacing:1px}
@@ -272,7 +271,16 @@ label{font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 
 /* ── FULLSCREEN MODE ── */
 body.fullscreen #hdr,body.fullscreen #hero{display:none}
-body.fullscreen #grid-wrap{padding-top:0}
+body.fullscreen #grid-wrap{padding-top:10px}
+#exit-fs{
+  position:fixed;top:calc(14px + env(safe-area-inset-top));right:18px;
+  width:40px;height:40px;border-radius:50%;background:rgba(201,169,110,.15);
+  border:1px solid rgba(201,169,110,.3);color:var(--acc);font-size:16px;
+  display:none;align-items:center;justify-content:center;z-index:150;
+  transition:.2s;
+}
+#exit-fs:hover{background:rgba(201,169,110,.25)}
+body.fullscreen #exit-fs{display:flex}
 
 /* ── LANDSCAPE ── */
 @media(orientation:landscape) and (max-height:500px){
@@ -366,6 +374,9 @@ body.fullscreen #grid-wrap{padding-top:0}
   </div>
 </div>
 
+<!-- EXIT FULLSCREEN -->
+<button id="exit-fs" onclick="toggleFullscreen()" title="Esci da fullscreen">✕</button>
+
 <!-- FAB -->
 <button id="fab" onclick="openAdd()">+</button>
 
@@ -378,7 +389,6 @@ body.fullscreen #grid-wrap{padding-top:0}
   <div id="lb-info">
     <div id="lb-title"></div>
     <div id="lb-desc"></div>
-    <div id="lb-exif"></div>
     <div id="lb-meta">
       <div id="lb-cat"></div>
       <div id="lb-counter"></div>
@@ -432,10 +442,6 @@ body.fullscreen #grid-wrap{padding-top:0}
     <input class="inp" id="add-desc" autocomplete="off" placeholder="Location, note, tecnica..."/>
     <label>Album (opzionale)</label>
     <input class="inp" id="add-album" autocomplete="off" placeholder="Es: Viaggio Sicilia 2025"/>
-    <label>Data scatto</label>
-    <input class="inp" id="add-date" type="date"/>
-    <label>Info tecnica (opzionale)</label>
-    <input class="inp" id="add-exif" autocomplete="off" placeholder="Es: 85mm f/1.8 1/500s ISO400"/>
     <label>Categoria</label>
     <div class="cats" id="add-cats">
       <button class="cbtn on" data-c="Paesaggi" onclick="selCat(this)">🏔 Paesaggi</button>
@@ -688,7 +694,6 @@ function showLb(){
   document.getElementById('lb-title').textContent=p.title;
   document.getElementById('lb-desc').textContent=p.desc||'';
   document.getElementById('lb-cat').textContent=p.cat;
-  document.getElementById('lb-exif').textContent=p.exif||'';
   document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+list.length;
 }
 function closeLb(){
@@ -777,8 +782,6 @@ function openAdd(){
   document.getElementById('add-title').value='';
   document.getElementById('add-desc').value='';
   document.getElementById('add-album').value='';
-  document.getElementById('add-date').value='';
-  document.getElementById('add-exif').value='';
   document.getElementById('btn-del-p').style.display='none';
   document.getElementById('lp-img').hidden=true;
   document.getElementById('toggle-feat').classList.remove('on');
@@ -794,8 +797,6 @@ function openEdit(key){
   document.getElementById('add-title').value=p.title||'';
   document.getElementById('add-desc').value=p.desc||'';
   document.getElementById('add-album').value=p.album||'';
-  document.getElementById('add-date').value=p.date||'';
-  document.getElementById('add-exif').value=p.exif||'';
   document.getElementById('btn-del-p').style.display='block';
   addCat=p.cat||'Paesaggi';
   document.querySelectorAll('.cbtn').forEach(b=>b.classList.toggle('on',b.dataset.c===addCat));
@@ -820,8 +821,6 @@ async function savePhoto(){
   const data={url,title,
     desc:document.getElementById('add-desc').value.trim(),
     album:document.getElementById('add-album').value.trim(),
-    date:document.getElementById('add-date').value,
-    exif:document.getElementById('add-exif').value.trim(),
     cat:addCat,featured,ts:Date.now()};
   showStatus('⏳ Salvataggio...');
   if(editingId){

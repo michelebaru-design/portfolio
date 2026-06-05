@@ -273,13 +273,13 @@ label{font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercas
 body.fullscreen #hdr,body.fullscreen #hero{display:none}
 body.fullscreen #grid-wrap{padding-top:10px}
 #exit-fs{
-  position:fixed;top:calc(14px + env(safe-area-inset-top));right:18px;
-  width:40px;height:40px;border-radius:50%;background:rgba(201,169,110,.15);
-  border:1px solid rgba(201,169,110,.3);color:var(--acc);font-size:16px;
+  position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:18px;
+  width:46px;height:46px;border-radius:50%;background:rgba(201,169,110,.2);
+  border:1.5px solid var(--acc);color:var(--acc);font-size:18px;
   display:none;align-items:center;justify-content:center;z-index:150;
-  transition:.2s;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);transition:.2s;
 }
-#exit-fs:hover{background:rgba(201,169,110,.25)}
+#exit-fs:hover{background:rgba(201,169,110,.3)}
 body.fullscreen #exit-fs{display:flex}
 
 /* ── LANDSCAPE ── */
@@ -375,7 +375,7 @@ body.fullscreen #exit-fs{display:flex}
 </div>
 
 <!-- EXIT FULLSCREEN -->
-<button id="exit-fs" onclick="toggleFullscreen()" title="Esci da fullscreen">✕</button>
+<button id="exit-fs" onclick="toggleFullscreen()" title="Esci da fullscreen">⊞</button>
 
 <!-- FAB -->
 <button id="fab" onclick="openAdd()">+</button>

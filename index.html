@@ -331,10 +331,11 @@ body.fullscreen #grid-wrap{padding-top:0}
   </div>
   <div id="search-wrap">
     <span id="si">🔍</span>
-    <input id="search-inp" type="search" autocomplete="off" autocorrect="off"
-      autocapitalize="off" spellcheck="false" placeholder="Cerca per titolo..."
-      oninput="onSearch(this.value)"
-      onfocus="if(this.value&&this.value.startsWith('http'))this.value=''"/>
+    <input id="search-inp" type="text" autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" readonly
+      placeholder="Cerca per titolo..."
+      onfocus="this.removeAttribute('readonly');if(this.value&&this.value.startsWith('http'))this.value=''"
+      oninput="onSearch(this.value)"/>
     <button id="sc" onclick="clearSearch()">✕</button>
   </div>
   <div id="toolbar">
@@ -474,7 +475,7 @@ const FB_URL=(()=>{
   if(p){localStorage.setItem('pf_db',p);return p;}
   return localStorage.getItem('pf_db')||'';
 })();
-const FB_PATH='/tattica/portfolio';
+const FB_PATH='/portfolio';
 
 /* ══ STATE ══ */
 let isAdmin=localStorage.getItem('pf_admin')==='true';
@@ -495,25 +496,25 @@ let isLoading=false;
 async function fbRead(){
   if(!FB_URL)return[];
   try{
-    const r=await fetch(FB_URL+FB_PATH+'/photos.json?_='+Date.now(),{cache:'no-store'});
+    const r=await fetch(FB_URL+FB_PATH+'.json?_='+Date.now(),{cache:'no-store'});
     if(!r.ok)return[];const d=await r.json();if(!d)return[];
     return Object.entries(d).map(([k,v])=>({...v,_key:k})).sort((a,b)=>(b.ts||0)-(a.ts||0));
   }catch{return[];}
 }
 async function fbWrite(data){
   if(!FB_URL)return null;
-  const r=await fetch(FB_URL+FB_PATH+'/photos.json',{method:'POST',
+  const r=await fetch(FB_URL+FB_PATH+'.json',{method:'POST',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
   return(await r.json()).name;
 }
 async function fbUpdate(key,data){
   if(!FB_URL)return;
-  await fetch(FB_URL+FB_PATH+'/photos/'+key+'.json',{method:'PATCH',
+  await fetch(FB_URL+FB_PATH+'/'+key+'.json',{method:'PATCH',
     headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
 }
 async function fbDel(key){
   if(!FB_URL)return;
-  await fetch(FB_URL+FB_PATH+'/photos/'+key+'.json',{method:'DELETE'});
+  await fetch(FB_URL+FB_PATH+'/'+key+'.json',{method:'DELETE'});
 }
 
 /* ══ FILTERED ══ */

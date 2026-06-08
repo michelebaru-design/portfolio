@@ -412,28 +412,29 @@ body.fullscreen #exit-fs{display:flex}
   #hero{height:60svh}
   #grid{grid-template-columns:repeat(5,1fr)}
 
-  /* Lightbox: SOLO FOTO a tutto schermo */
-  #lb{padding:0;justify-content:center;align-items:center}
-  #lb-img-wrap{max-height:100dvh;max-width:100vw;width:100vw;height:100dvh}
-  #lb-img{max-height:100dvh;max-width:100vw;width:100vw;height:100dvh;object-fit:contain}
-  #lb-info,#lb-controls{
-    position:fixed;bottom:0;left:0;right:0;
-    background:linear-gradient(transparent,rgba(0,0,0,.8));
-    padding:12px 16px calc(8px + env(safe-area-inset-bottom));
-    margin:0;max-width:100%;text-align:center;
+  /* Lightbox: foto assoluta a tutto schermo */
+  #lb{padding:0}
+  #lb-img-wrap{position:absolute;inset:0;max-height:none;max-width:none;
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  #lb-img{max-height:100%;max-width:100%;width:auto;height:auto;object-fit:contain}
+  #lb-info{
+    position:absolute;bottom:40px;left:0;right:0;z-index:2;
+    background:linear-gradient(transparent,rgba(0,0,0,.85));
+    padding:20px 16px 8px;margin:0;max-width:100%;
     opacity:0;transition:opacity .3s;pointer-events:none;
   }
-  #lb-controls{bottom:auto;top:auto;transform:none;left:0;right:0;
-    display:flex;justify-content:center;padding-bottom:calc(4px + env(safe-area-inset-bottom))}
-  #lb-info{bottom:40px}
+  #lb-controls{
+    position:absolute;bottom:0;left:0;right:0;z-index:2;
+    background:rgba(0,0,0,.6);margin:0;
+    padding:6px 16px calc(4px + env(safe-area-inset-bottom));
+    display:flex;justify-content:center;
+    opacity:0;transition:opacity .3s;pointer-events:none;
+  }
   #lb.show-info #lb-info,#lb.show-info #lb-controls{opacity:1;pointer-events:auto}
-  #lb-close{top:8px;right:8px;z-index:302}
+  #lb-close{z-index:3}
 
-  /* Fullscreen snap */
   body.fullscreen .cell{height:100dvh;width:100vw}
   body.fullscreen .cell img{object-fit:contain;width:100vw;height:100dvh}
-
-  /* Cinema */
   #cinema,#cinema-img{width:100vw;height:100dvh}
 }
 

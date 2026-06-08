@@ -288,9 +288,10 @@ body.fullscreen #grid.masonry{display:flex;flex-direction:column;columns:unset}
 @keyframes lbFade{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 
 /* ── LIGHTBOX ── */
-#lb{position:fixed;inset:0;z-index:300;background:rgba(4,4,4,.97);
+#lb{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(4,4,4,.97);
   display:none;flex-direction:column;align-items:center;justify-content:center;
   padding:60px 16px calc(20px + env(safe-area-inset-bottom));overflow-y:auto;
+  width:100vw;height:100vh;height:100dvh;
   -webkit-overflow-scrolling:touch}
 #lb.on{display:flex}
 #lb-img-wrap{position:relative;max-width:100%;max-height:55vh;
@@ -414,7 +415,11 @@ body.fullscreen #exit-fs{display:flex}
   body.fullscreen .cell{height:100dvh;width:100vw}
   body.fullscreen .cell img{object-fit:contain;width:100vw;height:100dvh}
   #cinema,#cinema-img{width:100vw;height:100dvh}
-  #lb-img{max-height:85vh}
+  #lb{padding:10px;width:100vw;height:100dvh}
+  #lb-img-wrap{max-height:85dvh}
+  #lb-img{max-height:85dvh}
+  #lb-info{margin-top:6px}
+  #lb-controls{margin-top:6px}
 }
 
 /* ── MODAL CHI SONO ── */
@@ -839,6 +844,11 @@ function openLb(i){
   lbIdx=i;lbScale=1;haptic();shutterSound();showLb();
   document.getElementById('lb').classList.add('on');
   document.body.style.overflow='hidden';
+  try{
+    const d=document.documentElement;
+    if(d.requestFullscreen)d.requestFullscreen();
+    else if(d.webkitRequestFullscreen)d.webkitRequestFullscreen();
+  }catch(e){}
 }
 function showLb(){
   const list=filtered();const p=list[lbIdx];if(!p)return;
@@ -859,6 +869,10 @@ function closeLb(){
   document.getElementById('lb').classList.remove('hide-ui');
   clearTimeout(autoHideT);
   document.body.style.overflow='';stopSlideshow();
+  try{
+    if(document.exitFullscreen)document.exitFullscreen();
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+  }catch(e){}
 }
 function lbNav(d){
   const list=filtered();

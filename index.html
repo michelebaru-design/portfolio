@@ -26,7 +26,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 }
 #splash.out{opacity:0;pointer-events:none}
 #splash-logo{
-  font-family:"Space Grotesk",sans-serif;font-size:28px;font-weight:800;
+  font-family:"Space Grotesk",sans-serif;font-size:28px;font-weight:700;
   letter-spacing:6px;color:var(--acc);text-transform:uppercase;
   opacity:0;transform:translateY(12px);
   animation:splashIn .8s .3s ease forwards;
@@ -82,7 +82,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 }
 #hero-bg{
   position:absolute;inset:0;background-size:cover;background-position:center;
-  transform:scale(1.08);transition:transform 8s ease;
+  transform:scale(1.02);transition:transform 8s ease;
 }
 #hero-bg.loaded{transform:scale(1);}
 #hero-grad{position:absolute;inset:0;
@@ -111,7 +111,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
   padding-top:env(safe-area-inset-top);
 }
 #hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
-#logo{font-family:"Space Grotesk",sans-serif;font-size:15px;font-weight:800;letter-spacing:3px;
+#logo{font-family:"Space Grotesk",sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;
   color:var(--acc);text-transform:uppercase;}
 #logo span{font-weight:400;font-size:10px;color:var(--mut);display:block;letter-spacing:2px;margin-top:1px}
 .hdr-btns{display:flex;gap:8px;align-items:center}
@@ -214,12 +214,13 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 /* ── LIGHTBOX ── */
 #lb{position:fixed;inset:0;z-index:300;background:rgba(4,4,4,.97);
   display:none;flex-direction:column;align-items:center;justify-content:center;
-  padding:60px 16px 20px;overflow:hidden}
+  padding:60px 16px calc(20px + env(safe-area-inset-bottom));overflow-y:auto;
+  -webkit-overflow-scrolling:touch}
 #lb.on{display:flex}
-#lb-img-wrap{position:relative;max-width:100%;max-height:65vh;
+#lb-img-wrap{position:relative;max-width:100%;max-height:55vh;
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  border-radius:2px}
-#lb-img{max-width:100%;max-height:65vh;object-fit:contain;
+  border-radius:2px;flex-shrink:0}
+#lb-img{max-width:100%;max-height:55vh;object-fit:contain;
   transition:transform .3s ease,opacity .35s ease;transform-origin:center;
   touch-action:none}
 #lb-img.fading{opacity:0;transform:scale(.97)}
@@ -227,13 +228,14 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
   background:rgba(255,255,255,.08);border:none;border-radius:50%;
   color:#fff;font-size:18px;z-index:301;width:38px;height:38px;
   display:flex;align-items:center;justify-content:center}
-#lb-info{margin-top:14px;text-align:center;max-width:480px;width:100%}
+#lb-info{margin-top:14px;text-align:center;max-width:480px;width:100%;flex-shrink:0}
 #lb-title{font-family:"Space Grotesk",sans-serif;font-size:17px;font-weight:700}
 #lb-desc{font-size:12px;color:var(--mut);margin-top:5px;font-weight:300;line-height:1.6}
 #lb-meta{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px}
 #lb-cat{font-size:9px;color:var(--acc);letter-spacing:2px;text-transform:uppercase}
 #lb-counter{font-size:11px;color:var(--mut);letter-spacing:1px}
-#lb-controls{display:flex;gap:10px;margin-top:14px;align-items:center}
+#lb-controls{display:flex;gap:10px;margin-top:14px;align-items:center;
+  flex-shrink:0;padding-bottom:10px}
 .lb-arr{background:none;border:1px solid #222;border-radius:50%;width:38px;height:38px;
   color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s}
 .lb-arr:hover{border-color:var(--acc);color:var(--acc)}
@@ -778,6 +780,9 @@ lb.addEventListener('touchmove',e=>{
 },{passive:false});
 lb.addEventListener('touchend',e=>{
   if(e.touches.length<2&&lbScale<1.1){lbScale=1;document.getElementById('lb-img').style.transform='scale(1)';}
+  // Ignora swipe se il tocco è su un bottone
+  const tag=e.target.tagName;
+  if(tag==='BUTTON'||e.target.closest('button'))return;
   if(e.touches.length===0&&lbScale<=1){
     const dx=e.changedTouches[0].clientX-lbTouchSX;
     const dy=e.changedTouches[0].clientY-lbTouchSY;

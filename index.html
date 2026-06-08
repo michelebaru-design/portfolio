@@ -408,18 +408,26 @@ body.fullscreen #grid-wrap{padding-top:10px}
 body.fullscreen #exit-fs{display:flex}
 
 /* ── LANDSCAPE ── */
-@media(orientation:landscape) and (max-height:500px){
+@media(orientation:landscape){
   #hero{height:60svh}
   #grid{grid-template-columns:repeat(5,1fr)}
-  #lb-img{max-height:80vh}
+  #lb{padding:6px;flex-direction:row;gap:10px}
+  #lb-close{top:6px;right:6px;width:32px;height:32px;font-size:16px}
+  #lb-img-wrap{max-height:96dvh;flex:1;max-width:72vw}
+  #lb-img{max-height:96dvh;max-width:72vw}
+  #lb-info{margin-top:0;text-align:left;max-width:24vw;align-self:center;flex-shrink:0}
+  #lb-title{font-size:14px}
+  #lb-desc{font-size:11px}
+  #lb-controls{position:fixed;bottom:6px;left:50%;transform:translateX(-50%);margin-top:0;padding-bottom:0}
   body.fullscreen .cell{height:100dvh;width:100vw}
   body.fullscreen .cell img{object-fit:contain;width:100vw;height:100dvh}
   #cinema,#cinema-img{width:100vw;height:100dvh}
-  #lb{padding:10px;width:100vw;height:100dvh}
-  #lb-img-wrap{max-height:85dvh}
-  #lb-img{max-height:85dvh}
-  #lb-info{margin-top:6px}
-  #lb-controls{margin-top:6px}
+}
+@media(orientation:landscape) and (max-height:440px){
+  #lb-info{display:none}
+  #lb-img-wrap{max-height:98dvh;max-width:85vw}
+  #lb-img{max-height:98dvh;max-width:85vw}
+  #lb-controls{bottom:2px}
 }
 
 /* ── MODAL CHI SONO ── */
@@ -1389,6 +1397,29 @@ function shutterSound(){
   }catch(e){}
 }
 
+/* ══ ORIENTATION CHANGE ══ */
+function initOrientation(){
+  const handler=()=>{
+    // Forza ricalcolo layout su iOS
+    setTimeout(()=>{
+      const lb=document.getElementById('lb');
+      if(lb.classList.contains('on')){
+        const img=document.getElementById('lb-img');
+        img.style.maxHeight='';
+        void img.offsetHeight;
+      }
+      const cin=document.getElementById('cinema');
+      if(cin.classList.contains('on')){
+        const ci=document.getElementById('cinema-img');
+        ci.style.width='100vw';ci.style.height='100dvh';
+      }
+    },150);
+  };
+  window.addEventListener('orientationchange',handler);
+  window.addEventListener('resize',handler);
+  screen.orientation&&screen.orientation.addEventListener('change',handler);
+}
+
 /* ══ KEYBOARD ══ */
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeLb();closeAdd();closePinModal();}
@@ -1420,6 +1451,7 @@ document.addEventListener('keydown',e=>{
   initLongPress();
   initPullRefresh();
   initAutoHide();
+  initOrientation();
   updateCatCounters();
   updateGradient();
   const si=document.getElementById('search-inp');if(si)si.value='';

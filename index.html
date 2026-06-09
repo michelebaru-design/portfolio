@@ -72,7 +72,43 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 }
 .cell-glow.flash{opacity:1;transition:none}
 
-/* ── SKELETON LOADING ── */
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--acc);
+  z-index:9998;width:0%;transition:width .1s linear;pointer-events:none}
+
+/* ── BACK TO TOP ── */
+#btt{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));right:18px;
+  width:42px;height:42px;border-radius:50%;background:var(--card);
+  border:1px solid var(--border);color:var(--acc);font-size:18px;z-index:99;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.3);transition:opacity .3s,transform .3s;cursor:pointer}
+#btt.on{display:flex}
+#btt:hover{transform:scale(1.1)}
+
+/* ── CASCADE ENTRANCE ── */
+.cell.cascade{opacity:0;transform:translateY(20px);
+  animation:cascadeIn .5s ease forwards}
+@keyframes cascadeIn{to{opacity:1;transform:translateY(0)}}
+
+/* ── STATS PAGE ── */
+#mod-stats{z-index:210}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:12px}
+.stat-title{font-size:10px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.stat-value{font-family:"Space Grotesk",sans-serif;font-size:32px;font-weight:700;color:var(--acc)}
+.stat-row{display:flex;gap:10px}
+.stat-row .stat-card{flex:1}
+.stat-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:100px;margin-top:8px}
+.stat-bar{flex:1;background:var(--acc);border-radius:4px 4px 0 0;min-height:4px;
+  transition:height .6s ease;position:relative}
+.stat-bar-label{font-size:8px;color:var(--mut);text-align:center;margin-top:4px;
+  position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.stat-pie{width:120px;height:120px;border-radius:50%;margin:0 auto 12px;position:relative}
+.stat-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.stat-leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mut)}
+.stat-leg-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── DARK PARTICLES ── */
 .skel{aspect-ratio:1/1;background:var(--skel);border-radius:2px;
   animation:skelPulse 1.2s ease-in-out infinite}
 @keyframes skelPulse{0%,100%{background:var(--skel)}50%{background:var(--skel2)}}
@@ -454,6 +490,12 @@ body.fullscreen #exit-fs{display:flex}
 </head>
 <body>
 
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
+
+<!-- BACK TO TOP -->
+<button id="btt" onclick="scrollToTop()">↑</button>
+
 <!-- LONG PRESS PREVIEW -->
 <div id="lp-overlay" onclick="closeLongPress()"><img id="lp-img" src=""/></div>
 
@@ -505,6 +547,7 @@ body.fullscreen #exit-fs{display:flex}
     <div id="logo">Portfolio<span>Fotografia</span></div>
     <div class="hdr-btns">
       <button class="hbtn" id="btn-about" title="Chi Sono" onclick="openAbout()">👤</button>
+      <button class="hbtn" id="btn-stats" title="Statistiche" onclick="openStats()">📊</button>
       <button class="hbtn on" id="btn-grid" title="Griglia" onclick="setView('grid')">⊞</button>
       <button class="hbtn" id="btn-masonry" title="Masonry" onclick="setView('masonry')">⊟</button>
       <button class="hbtn" id="btn-fs" title="Fullscreen" onclick="toggleFullscreen()">⛶</button>
@@ -574,6 +617,16 @@ body.fullscreen #exit-fs{display:flex}
     <button id="lb-slide-btn" onclick="toggleSlideshow()">▶ Slideshow</button>
     <button id="lb-cinema-btn" class="lb-arr" onclick="startCinema()" title="Cinema">🎬</button>
     <button class="lb-arr" onclick="lbNav(1)">›</button>
+  </div>
+</div>
+
+<!-- MODAL STATISTICHE -->
+<div class="ov" id="mod-stats" style="display:none" onclick="if(event.target===this)closeStats()">
+  <div class="sh">
+    <div class="sh-handle"></div>
+    <div class="sh-title">📊 Statistiche</div>
+    <div id="stats-content"></div>
+    <button onclick="closeStats()" style="width:100%;background:none;border:none;color:var(--mut);font-size:12px;margin-top:16px;cursor:pointer">Chiudi</button>
   </div>
 </div>
 
@@ -771,7 +824,7 @@ function render(reset){
       +'</div>';
   }).join('');
   if(loader)loader.style.display=visN<list.length?'flex':'none';
-  setTimeout(initFadeObs,50);
+  setTimeout(()=>{initFadeObs();initCascade();},50);
   if(viewMode==='grid'){initParallax();initTilt();}
   renderAlbums();
 }
@@ -1105,8 +1158,9 @@ function initParticles(){
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;}
   resize();window.addEventListener('resize',resize);
   const pts=[];
+  const night=isNight();
   for(let i=0;i<40;i++){
-    pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+.5,
+    pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*(night?1.5:2)+.5,
       vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)-.2,
       a:Math.random()*.5+.2,da:Math.random()*.005+.002});
   }
@@ -1118,7 +1172,11 @@ function initParticles(){
       if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
       if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(201,169,110,'+p.a+')';ctx.fill();
+      if(night){ctx.fillStyle='rgba(255,255,255,'+p.a+')';
+      }else{ctx.fillStyle='rgba(201,169,110,'+p.a+')';}
+      ctx.fill();
+      if(night){ctx.beginPath();ctx.arc(p.x,p.y,p.r*2,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,'+(p.a*.15)+')';ctx.fill();}
     });
     requestAnimationFrame(draw);
   }
@@ -1405,6 +1463,112 @@ function shutterSound(){
   }catch(e){}
 }
 
+/* ══ SCROLL PROGRESS BAR ══ */
+function initScrollProgress(){
+  const bar=document.getElementById('scroll-progress');
+  window.addEventListener('scroll',()=>{
+    const h=document.documentElement.scrollHeight-window.innerHeight;
+    if(h>0)bar.style.width=(window.scrollY/h*100)+'%';
+  },{passive:true});
+}
+
+/* ══ BACK TO TOP ══ */
+function initBackToTop(){
+  const btn=document.getElementById('btt');
+  window.addEventListener('scroll',()=>{
+    if(window.scrollY>600)btn.classList.add('on');
+    else btn.classList.remove('on');
+  },{passive:true});
+}
+function scrollToTop(){
+  haptic();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ CASCADE ENTRANCE ══ */
+function initCascade(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        const cell=e.target;
+        const delay=Array.from(cell.parentNode.children).indexOf(cell)%6*80;
+        setTimeout(()=>cell.classList.add('cascade'),delay);
+        obs.unobserve(cell);
+      }
+    });
+  },{threshold:.05});
+  document.querySelectorAll('.cell:not(.cascade)').forEach(c=>obs.observe(c));
+}
+
+/* ══ NIGHT PARTICLES ══ */
+function isNight(){const h=new Date().getHours();return h>=20||h<6;}
+
+/* ══ STATS PAGE ══ */
+function openStats(){
+  haptic();
+  const el=document.getElementById('stats-content');
+  const total=photos.length;
+  const cats={Paesaggi:0,Ritratti:0,Street:0,Sport:0};
+  const months={};
+  const catColors={Paesaggi:'#34a853',Ritratti:'#a855f7',Street:'#f59e0b',Sport:'#ef4444'};
+  
+  photos.forEach(p=>{
+    if(cats[p.cat]!==undefined)cats[p.cat]++;
+    const d=new Date(p.ts);
+    const mk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    months[mk]=(months[mk]||0)+1;
+  });
+  
+  const lastPhoto=photos.length?photos[0]:null;
+  const featured=photos.filter(p=>p.featured).length;
+  const albums=[...new Set(photos.map(p=>p.album||'').filter(Boolean))].length;
+  
+  // Pie chart as conic-gradient
+  const catEntries=Object.entries(cats).filter(([,v])=>v>0);
+  let pieGrad='';let cumPct=0;
+  catEntries.forEach(([k,v])=>{
+    const pct=total?v/total*100:0;
+    pieGrad+=(pieGrad?',':'')+catColors[k]+' '+cumPct+'% '+(cumPct+pct)+'%';
+    cumPct+=pct;
+  });
+  if(!pieGrad)pieGrad='var(--border) 0% 100%';
+  
+  // Bar chart - last 6 months
+  const sortedMonths=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
+  const maxMonth=Math.max(...sortedMonths.map(([,v])=>v),1);
+  const mNames=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  
+  el.innerHTML=
+    '<div class="stat-row">'
+    +'<div class="stat-card"><div class="stat-title">Totale foto</div><div class="stat-value">'+total+'</div></div>'
+    +'<div class="stat-card"><div class="stat-title">In evidenza</div><div class="stat-value">'+featured+'</div></div>'
+    +'<div class="stat-card"><div class="stat-title">Album</div><div class="stat-value">'+albums+'</div></div>'
+    +'</div>'
+    +'<div class="stat-card">'
+    +'<div class="stat-title">Foto per categoria</div>'
+    +'<div class="stat-pie" style="background:conic-gradient('+pieGrad+')"></div>'
+    +'<div class="stat-legend">'
+    +catEntries.map(([k,v])=>'<div class="stat-leg-item"><div class="stat-leg-dot" style="background:'+catColors[k]+'"></div>'+k+' ('+v+')</div>').join('')
+    +'</div></div>'
+    +'<div class="stat-card">'
+    +'<div class="stat-title">Foto per mese</div>'
+    +'<div class="stat-bar-wrap" style="padding-bottom:20px">'
+    +sortedMonths.map(([k,v])=>{
+      const m=parseInt(k.split('-')[1])-1;
+      return '<div style="flex:1;text-align:center"><div style="height:100px;display:flex;align-items:flex-end;justify-content:center">'
+        +'<div class="stat-bar" style="height:'+Math.round(v/maxMonth*100)+'%;width:100%">'
+        +'<div class="stat-bar-label">'+mNames[m]+'</div></div></div>'
+        +'<div style="font-size:10px;color:var(--acc);margin-top:18px">'+v+'</div></div>';
+    }).join('')
+    +'</div></div>'
+    +(lastPhoto?'<div class="stat-card"><div class="stat-title">Ultima foto caricata</div>'
+    +'<div style="font-size:14px;color:var(--txt);margin-top:4px">'+lastPhoto.title+'</div>'
+    +'<div style="font-size:11px;color:var(--mut);margin-top:2px">'+new Date(lastPhoto.ts).toLocaleDateString('it-IT')+'</div></div>':'');
+  
+  document.getElementById('mod-stats').style.display='flex';
+}
+function closeStats(){document.getElementById('mod-stats').style.display='none';}
+
 /* ══ ORIENTATION CHANGE ══ */
 function initOrientation(){
   const handler=()=>{
@@ -1469,6 +1633,8 @@ document.addEventListener('keydown',e=>{
   initPullRefresh();
   initAutoHide();
   initOrientation();
+  initScrollProgress();
+  initBackToTop();
   updateCatCounters();
   updateGradient();
   const si=document.getElementById('search-inp');if(si)si.value='';

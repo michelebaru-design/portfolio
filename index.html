@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Portfolio"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <title>Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -86,9 +86,7 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 #btt:hover{transform:scale(1.1)}
 
 /* ── CASCADE ENTRANCE ── */
-.cell.cascade{opacity:1!important;transform:translateY(0)!important;
-  animation:cascadeIn .5s ease forwards}
-@keyframes cascadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.cell{opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
 
 /* ── STATS PAGE ── */
 #mod-stats{z-index:210}
@@ -202,8 +200,8 @@ body.fullscreen #grid.masonry{display:flex;flex-direction:column;columns:unset}
   background:linear-gradient(to top,rgba(8,8,8,.95) 0%,rgba(8,8,8,.4) 40%,rgba(8,8,8,.1) 100%);}
 #hero-content{position:relative;z-index:2;padding:0 28px calc(48px + env(safe-area-inset-bottom));}
 #hero-label{font-size:10px;letter-spacing:4px;color:var(--acc);text-transform:uppercase;margin-bottom:10px}
-#hero-title{font-family:"Space Grotesk",sans-serif;font-size:clamp(32px,7vw,64px);font-weight:700;
-  line-height:1.15;letter-spacing:-0.5px;margin-bottom:10px;color:var(--acc)}
+#hero-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(42px,10vw,80px);font-weight:400;
+  line-height:1.05;letter-spacing:3px;margin-bottom:10px;color:var(--acc);text-transform:uppercase}
 #hero-sub{font-size:13px;color:rgba(240,235,226,.6);font-weight:300;margin-bottom:24px;max-width:320px}
 #hero-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;
   border:1px solid rgba(201,169,110,.4);border-radius:99px;font-size:12px;font-weight:600;
@@ -826,7 +824,7 @@ function render(reset){
       +'</div>';
   }).join('');
   if(loader)loader.style.display=visN<list.length?'flex':'none';
-  setTimeout(()=>{initFadeObs();initCascade();},50);
+  setTimeout(()=>{initCascade();},50);
   if(viewMode==='grid'){initParallax();initTilt();}
   renderAlbums();
 }
@@ -1489,17 +1487,17 @@ function scrollToTop(){
 
 /* ══ CASCADE ENTRANCE ══ */
 function initCascade(){
+  const cells=document.querySelectorAll('.cell:not(.vis)');
   const obs=new IntersectionObserver(entries=>{
-    entries.forEach((e,i)=>{
-      if(e.isIntersecting){
-        const cell=e.target;
-        const delay=Array.from(cell.parentNode.children).indexOf(cell)%6*80;
-        setTimeout(()=>cell.classList.add('cascade'),delay);
-        obs.unobserve(cell);
-      }
+    const visible=entries.filter(e=>e.isIntersecting);
+    visible.forEach((e,i)=>{
+      e.target.style.transitionDelay=(i*60)+'ms';
+      e.target.classList.add('vis');
+      obs.unobserve(e.target);
+      setTimeout(()=>{e.target.style.transitionDelay='0ms';},600);
     });
   },{threshold:.05});
-  document.querySelectorAll('.cell:not(.cascade)').forEach(c=>obs.observe(c));
+  cells.forEach(c=>obs.observe(c));
 }
 
 /* ══ NIGHT PARTICLES ══ */

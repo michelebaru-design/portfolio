@@ -86,9 +86,9 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 #btt:hover{transform:scale(1.1)}
 
 /* ── CASCADE ENTRANCE ── */
-.cell.cascade{opacity:0;transform:translateY(20px);
+.cell.cascade{opacity:1!important;transform:translateY(0)!important;
   animation:cascadeIn .5s ease forwards}
-@keyframes cascadeIn{to{opacity:1;transform:translateY(0)}}
+@keyframes cascadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── STATS PAGE ── */
 #mod-stats{z-index:210}
@@ -98,9 +98,11 @@ button,input,select,textarea{font-family:inherit;cursor:pointer}
 .stat-value{font-family:"Space Grotesk",sans-serif;font-size:32px;font-weight:700;color:var(--acc)}
 .stat-row{display:flex;gap:10px}
 .stat-row .stat-card{flex:1}
-.stat-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:100px;margin-top:8px}
-.stat-bar{flex:1;background:var(--acc);border-radius:4px 4px 0 0;min-height:4px;
-  transition:height .6s ease;position:relative}
+.stat-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:100px;margin-top:8px;
+  justify-content:center}
+.stat-bar-col{flex:0 1 50px;text-align:center}
+.stat-bar{background:var(--acc);border-radius:4px 4px 0 0;min-height:4px;
+  margin:0 auto;width:28px;transition:height .6s ease}
 .stat-bar-label{font-size:8px;color:var(--mut);text-align:center;margin-top:4px;
   position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);white-space:nowrap}
 .stat-pie{width:120px;height:120px;border-radius:50%;margin:0 auto 12px;position:relative}
@@ -249,7 +251,7 @@ body.fullscreen #grid.masonry{display:flex;flex-direction:column;columns:unset}
 #sort-grp{display:flex;gap:4px}
 .sbtn{padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:transparent;
   color:var(--mut);font-size:10px;font-weight:600;letter-spacing:.5px;transition:.2s}
-.sbtn.on{background:#1e1e1e;border-color:#444;color:var(--txt)}
+.sbtn.on{background:rgba(201,169,110,.15);border-color:var(--acc);color:var(--acc)}
 #view-toggle{display:flex;gap:4px}
 .vbtn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;
   color:var(--mut);font-size:13px;transition:.2s}
@@ -1533,10 +1535,16 @@ function openStats(){
   });
   if(!pieGrad)pieGrad='var(--border) 0% 100%';
   
-  // Bar chart - last 6 months
-  const sortedMonths=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
-  const maxMonth=Math.max(...sortedMonths.map(([,v])=>v),1);
+  // Bar chart - ultimi 6 mesi (inclusi vuoti)
   const mNames=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  const now=new Date();
+  const last6=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const mk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    last6.push({key:mk,month:mNames[d.getMonth()],count:months[mk]||0});
+  }
+  const maxMonth=Math.max(...last6.map(m=>m.count),1);
   
   el.innerHTML=
     '<div class="stat-row">'
@@ -1552,13 +1560,15 @@ function openStats(){
     +'</div></div>'
     +'<div class="stat-card">'
     +'<div class="stat-title">Foto per mese</div>'
-    +'<div class="stat-bar-wrap" style="padding-bottom:20px">'
-    +sortedMonths.map(([k,v])=>{
-      const m=parseInt(k.split('-')[1])-1;
-      return '<div style="flex:1;text-align:center"><div style="height:100px;display:flex;align-items:flex-end;justify-content:center">'
-        +'<div class="stat-bar" style="height:'+Math.round(v/maxMonth*100)+'%;width:100%">'
-        +'<div class="stat-bar-label">'+mNames[m]+'</div></div></div>'
-        +'<div style="font-size:10px;color:var(--acc);margin-top:18px">'+v+'</div></div>';
+    +'<div class="stat-bar-wrap">'
+    +last6.map(m=>{
+      const h=m.count?Math.max(8,Math.round(m.count/maxMonth*90)):4;
+      return '<div class="stat-bar-col">'
+        +'<div style="height:90px;display:flex;align-items:flex-end;justify-content:center">'
+        +'<div class="stat-bar" style="height:'+h+'px"></div></div>'
+        +'<div style="font-size:9px;color:var(--mut);margin-top:4px">'+m.month+'</div>'
+        +(m.count?'<div style="font-size:10px;color:var(--acc);margin-top:2px">'+m.count+'</div>':'')
+        +'</div>';
     }).join('')
     +'</div></div>'
     +(lastPhoto?'<div class="stat-card"><div class="stat-title">Ultima foto caricata</div>'
